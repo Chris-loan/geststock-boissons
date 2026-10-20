@@ -64,7 +64,7 @@ export default function Dashboard({ products, movements }: DashboardProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Valeur du Stock</p>
-              <p className="text-2xl font-bold text-gray-800">{totalValue.toLocaleString('fr-FR')} €</p>
+              <p className="text-2xl font-bold text-gray-800">{totalValue.toLocaleString('fr-FR')} FCFA</p>
             </div>
             <div className="bg-purple-100 p-3 rounded-lg">
               <DollarSign className="w-6 h-6 text-purple-600" />
@@ -116,7 +116,7 @@ export default function Dashboard({ products, movements }: DashboardProps) {
               <div className="mt-2 space-y-1">
                 <p className="text-sm text-gray-600">Produits: <span className="font-semibold">{stats.count}</span></p>
                 <p className="text-sm text-gray-600">Stock: <span className="font-semibold">{stats.stock}</span></p>
-                <p className="text-sm text-gray-600">Valeur: <span className="font-semibold">{stats.value.toLocaleString('fr-FR')} €</span></p>
+                <p className="text-sm text-gray-600">Valeur: <span className="font-semibold">{stats.value.toLocaleString('fr-FR')} FCFA</span></p>
               </div>
             </div>
           ))}

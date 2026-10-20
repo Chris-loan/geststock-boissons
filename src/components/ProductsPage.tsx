@@ -142,7 +142,7 @@ export default function ProductsPage({ products, setProducts }: ProductsPageProp
                     </span>
                   </td>
                   <td className="py-3 px-4 text-gray-600">{product.unit}</td>
-                  <td className="py-3 px-4 font-medium text-gray-800">{product.price.toFixed(2)} €</td>
+                  <td className="py-3 px-4 font-medium text-gray-800">{product.price.toLocaleString('fr-FR')} FCFA</td>
                   <td className="py-3 px-4 font-bold text-gray-800">{product.stockCurrent}</td>
                   <td className="py-3 px-4 text-gray-600">{product.stockMin}</td>
                   <td className="py-3 px-4">
@@ -234,15 +234,16 @@ export default function ProductsPage({ products, setProducts }: ProductsPageProp
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Prix (€)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Prix (FCFA)</label>
                   <input
                     type="number"
                     required
                     min="0"
-                    step="0.01"
+                    step="100"
                     value={formData.price || ''}
                     onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="ex: 8500"
                   />
                 </div>
                 <div>

@@ -24,8 +24,8 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
       'Stock Actuel': p.stockCurrent,
       'Stock Minimum': p.stockMin,
       'Statut': p.stockCurrent <= p.stockMin ? 'ALERTE' : 'OK',
-      'Prix Unitaire (€)': p.price,
-      'Valeur Stock (€)': p.stockCurrent * p.price,
+      'Prix Unitaire (FCFA)': p.price,
+      'Valeur Stock (FCFA)': p.stockCurrent * p.price,
       'Fournisseur': p.supplier,
     }));
 
@@ -48,7 +48,7 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
       { 'Indicateur': 'Date du rapport', 'Valeur': new Date().toLocaleDateString('fr-FR') },
       { 'Indicateur': 'Nombre total de produits', 'Valeur': products.length.toString() },
       { 'Indicateur': 'Stock total (unités)', 'Valeur': products.reduce((s, p) => s + p.stockCurrent, 0).toString() },
-      { 'Indicateur': 'Valeur totale du stock', 'Valeur': `${totalValue.toLocaleString('fr-FR')} €` },
+      { 'Indicateur': 'Valeur totale du stock', 'Valeur': `${totalValue.toLocaleString('fr-FR')} FCFA` },
       { 'Indicateur': 'Produits en alerte', 'Valeur': lowStockProducts.length.toString() },
       { 'Indicateur': 'Mouvements aujourd\'hui', 'Valeur': todayMovements.length.toString() },
       { 'Indicateur': 'Entrées aujourd\'hui', 'Valeur': todayMovements.filter(m => m.type === 'entree').reduce((s, m) => s + m.quantity, 0).toString() },
@@ -154,7 +154,7 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
           </div>
           <div className="bg-gray-50 rounded-lg p-4">
             <p className="text-sm text-gray-500">Valeur du Stock</p>
-            <p className="font-semibold text-gray-800">{totalValue.toLocaleString('fr-FR')} €</p>
+            <p className="font-semibold text-gray-800">{totalValue.toLocaleString('fr-FR')} FCFA</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4">
             <p className="text-sm text-gray-500">Alertes</p>
@@ -220,7 +220,7 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
                 <ul className="space-y-1">
                   <li>• {products.length} produits en catalogue</li>
                   <li>• {products.reduce((s, p) => s + p.stockCurrent, 0)} unités en stock</li>
-                  <li>• Valeur totale : {totalValue.toLocaleString('fr-FR')} €</li>
+                  <li>• Valeur totale : {totalValue.toLocaleString('fr-FR')} FCFA</li>
                   <li>• {todayMovements.length} mouvement(s) aujourd'hui</li>
                   {lowStockProducts.length > 0 && (
                     <li className="text-red-600 font-medium">• ⚠️ {lowStockProducts.length} produit(s) en stock bas</li>
