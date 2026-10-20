@@ -12,8 +12,14 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
   const [emailSent, setEmailSent] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [lastSentDate, setLastSentDate] = useState<string | null>(null);
-  const [directorEmail, setDirectorEmail] = useState('directeur@entreprise.fr');
   const [showEmailConfig, setShowEmailConfig] = useState(false);
+
+  // Récupérer l'email depuis les paramètres sauvegardés
+  const savedSettings = localStorage.getItem('geststock_settings');
+  const directorEmail = savedSettings ? JSON.parse(savedSettings).directorEmail : 'directeur@entreprise.com';
+  const directorName = savedSettings ? JSON.parse(savedSettings).directorName : 'Directeur';
+  const companyName = savedSettings ? JSON.parse(savedSettings).companyName : 'Dépôt de Boissons';
+  const setDirectorEmail = () => {}; // L'email est géré dans les paramètres
 
   const generateExcelData = () => {
     // Sheet 1: État du stock
@@ -107,32 +113,15 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
         </button>
       </div>
 
-      {/* Email Config */}
+      {/* Email Config Info */}
       {showEmailConfig && (
         <div className="bg-blue-50 rounded-xl border border-blue-200 p-5">
-          <h3 className="font-semibold text-blue-800 mb-3">Configuration de l'envoi par email</h3>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-blue-700 mb-1">Email du directeur</label>
-              <input
-                type="email"
-                value={directorEmail}
-                onChange={(e) => setDirectorEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                placeholder="directeur@entreprise.fr"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-blue-700 mb-1">Fréquence d'envoi</label>
-              <select className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                <option value="daily">Quotidien (chaque jour à 18h)</option>
-                <option value="weekly">Hebdomadaire (chaque lundi)</option>
-                <option value="manual">Manuel uniquement</option>
-              </select>
-            </div>
-          </div>
-          <p className="text-sm text-blue-600 mt-2">
-            <Clock className="w-3 h-3 inline" /> Le rapport quotidien sera envoyé automatiquement chaque jour à 18h00
+          <h3 className="font-semibold text-blue-800 mb-2">📧 Configuration de l'email</h3>
+          <p className="text-sm text-blue-700 mb-3">
+            L'email du directeur est actuellement configuré à : <strong>{directorEmail}</strong>
+          </p>
+          <p className="text-sm text-blue-600">
+            ⚙️ Pour modifier l'email, la fréquence d'envoi ou d'autres paramètres, rendez-vous dans la page <strong>Paramètres</strong> du menu.
           </p>
         </div>
       )}
@@ -210,7 +199,7 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
         <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
           <div className="space-y-2 text-sm">
             <p><span className="font-medium text-gray-700">À:</span> {directorEmail}</p>
-            <p><span className="font-medium text-gray-700">Objet:</span> Rapport Stock Quotidien - Dépôt de Boissons - {new Date().toLocaleDateString('fr-FR')}</p>
+            <p><span className="font-medium text-gray-700">Objet:</span> Rapport Stock Quotidien - {companyName} - {new Date().toLocaleDateString('fr-FR')}</p>
             <hr className="my-3" />
             <div className="text-gray-700">
               <p>Bonjour,</p>

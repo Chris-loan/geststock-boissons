@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import ProductsPage from './components/ProductsPage';
 import MovementsPage from './components/MovementsPage';
 import ReportsPage from './components/ReportsPage';
+import SettingsPage from './components/SettingsPage';
 import {
   LayoutDashboard,
   Package,
@@ -27,6 +28,7 @@ export default function App() {
     { id: 'products' as PageView, label: 'Produits', icon: Package },
     { id: 'movements' as PageView, label: 'Mouvements', icon: ArrowLeftRight },
     { id: 'reports' as PageView, label: 'Rapports & Email', icon: FileBarChart },
+    { id: 'settings' as PageView, label: 'Paramètres', icon: Settings },
   ];
 
   const renderPage = () => {
@@ -46,6 +48,8 @@ export default function App() {
         );
       case 'reports':
         return <ReportsPage products={products} movements={movements} />;
+      case 'settings':
+        return <SettingsPage />;
       default:
         return <Dashboard products={products} movements={movements} />;
     }
