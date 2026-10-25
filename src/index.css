@@ -14,3 +14,30 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Styles d'impression */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print\:block,
+  .print\:block * {
+    visibility: visible;
+  }
+
+  .print\:block {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Masquer la sidebar et le header lors de l'impression */
+  aside,
+  header,
+  nav {
+    display: none !important;
+  }
+}

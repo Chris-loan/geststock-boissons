@@ -29,4 +29,4 @@ export interface DailyReport {
   lowStockProducts: Product[];
 }
 
-export type PageView = 'dashboard' | 'products' | 'movements' | 'reports' | 'settings';
+export type PageView = 'dashboard' | 'products' | 'movements' | 'tickets' | 'reports' | 'settings';

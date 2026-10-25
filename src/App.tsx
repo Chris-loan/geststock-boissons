@@ -6,6 +6,7 @@ import ProductsPage from './components/ProductsPage';
 import MovementsPage from './components/MovementsPage';
 import ReportsPage from './components/ReportsPage';
 import SettingsPage from './components/SettingsPage';
+import TicketsPage from './components/TicketsPage';
 import {
   LayoutDashboard,
   Package,
@@ -15,6 +16,7 @@ import {
   X,
   Beer,
   Settings,
+  Ticket,
 } from 'lucide-react';
 
 export default function App() {
@@ -27,6 +29,7 @@ export default function App() {
     { id: 'dashboard' as PageView, label: 'Tableau de bord', icon: LayoutDashboard },
     { id: 'products' as PageView, label: 'Produits', icon: Package },
     { id: 'movements' as PageView, label: 'Mouvements', icon: ArrowLeftRight },
+    { id: 'tickets' as PageView, label: 'Tickets', icon: Ticket },
     { id: 'reports' as PageView, label: 'Rapports & Email', icon: FileBarChart },
     { id: 'settings' as PageView, label: 'Paramètres', icon: Settings },
   ];
@@ -46,6 +49,8 @@ export default function App() {
             setMovements={setMovements}
           />
         );
+      case 'tickets':
+        return <TicketsPage products={products} movements={movements} />;
       case 'reports':
         return <ReportsPage products={products} movements={movements} />;
       case 'settings':
