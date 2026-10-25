@@ -50,7 +50,7 @@ export default function App() {
           />
         );
       case 'tickets':
-        return <TicketsPage products={products} movements={movements} />;
+        return <TicketsPage products={products} setProducts={setProducts} movements={movements} setMovements={setMovements} />;
       case 'reports':
         return <ReportsPage products={products} movements={movements} />;
       case 'settings':
