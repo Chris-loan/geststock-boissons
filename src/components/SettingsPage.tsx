@@ -10,6 +10,9 @@ interface Settings {
   autoSend: boolean;
   lowStockAlert: boolean;
   alertThreshold: number;
+  emailjsServiceId: string;
+  emailjsTemplateId: string;
+  emailjsPublicKey: string;
 }
 
 const defaultSettings: Settings = {
@@ -21,6 +24,9 @@ const defaultSettings: Settings = {
   autoSend: true,
   lowStockAlert: true,
   alertThreshold: 10,
+  emailjsServiceId: '',
+  emailjsTemplateId: '',
+  emailjsPublicKey: '',
 };
 
 export default function SettingsPage() {
@@ -201,6 +207,86 @@ export default function SettingsPage() {
                   {settings.sendFrequency === 'weekly' && 'chaque lundi'}
                   {settings.sendFrequency === 'monthly' && 'le 1er de chaque mois'}
                 </strong> à <strong>{settings.sendTime}</strong> à l'adresse <strong>{settings.directorEmail}</strong>
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Configuration EmailJS */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="bg-green-100 p-2.5 rounded-lg">
+            <Mail className="w-5 h-5 text-green-600" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800">Configuration EmailJS</h2>
+            <p className="text-sm text-gray-500">Service d'envoi d'emails</p>
+          </div>
+        </div>
+
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+          <p className="text-sm text-yellow-800 mb-2">
+            <strong>📋 Instructions de configuration :</strong>
+          </p>
+          <ol className="text-sm text-yellow-700 space-y-1 list-decimal list-inside">
+            <li>Créez un compte gratuit sur <a href="https://www.emailjs.com/" target="_blank" rel="noopener noreferrer" className="underline font-medium">emailjs.com</a></li>
+            <li>Ajoutez un service email (Gmail, Outlook, etc.)</li>
+            <li>Créez un template avec les variables : <code className="bg-yellow-100 px-1 rounded">to_email</code>, <code className="bg-yellow-100 px-1 rounded">subject</code>, <code className="bg-yellow-100 px-1 rounded">message</code></li>
+            <li>Copiez vos identifiants ci-dessous</li>
+          </ol>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Service ID
+            </label>
+            <input
+              type="text"
+              value={settings.emailjsServiceId}
+              onChange={(e) => setSettings({ ...settings, emailjsServiceId: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="service_xxxxxxx"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Template ID
+            </label>
+            <input
+              type="text"
+              value={settings.emailjsTemplateId}
+              onChange={(e) => setSettings({ ...settings, emailjsTemplateId: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="template_xxxxxxx"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Public Key (User ID)
+            </label>
+            <input
+              type="text"
+              value={settings.emailjsPublicKey}
+              onChange={(e) => setSettings({ ...settings, emailjsPublicKey: e.target.value })}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="xxxxxxxxxxxxxxx"
+            />
+          </div>
+
+          {settings.emailjsServiceId && settings.emailjsTemplateId && settings.emailjsPublicKey ? (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-sm text-green-800">
+                ✅ Configuration EmailJS complète
+              </p>
+            </div>
+          ) : (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-800">
+                ⚠️ Configuration EmailJS incomplète - L'envoi d'emails ne fonctionnera pas
               </p>
             </div>
           )}

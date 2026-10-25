@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Product, StockMovement } from '../types';
 import * as XLSX from 'xlsx';
-import { FileSpreadsheet, Mail, Download, Send, Calendar, CheckCircle, Clock } from 'lucide-react';
+import emailjs from '@emailjs/browser';
+import { FileSpreadsheet, Mail, Download, Send, Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 interface ReportsPageProps {
   products: Product[];
@@ -14,12 +15,11 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
   const [lastSentDate, setLastSentDate] = useState<string | null>(null);
   const [showEmailConfig, setShowEmailConfig] = useState(false);
 
-  // Récupérer l'email depuis les paramètres sauvegardés
+  // Récupérer les paramètres sauvegardés
   const savedSettings = localStorage.getItem('geststock_settings');
   const directorEmail = savedSettings ? JSON.parse(savedSettings).directorEmail : 'directeur@entreprise.com';
   const directorName = savedSettings ? JSON.parse(savedSettings).directorName : 'Directeur';
   const companyName = savedSettings ? JSON.parse(savedSettings).companyName : 'Dépôt de Boissons';
-  const setDirectorEmail = () => {}; // L'email est géré dans les paramètres
 
   const generateExcelData = () => {
     // Sheet 1: État du stock
@@ -82,23 +82,89 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
     XLSX.writeFile(wb, `Rapport_Stock_${today}.xlsx`);
   };
 
-  const sendEmailReport = () => {
+  const sendEmailReport = async () => {
+    // Récupérer les paramètres EmailJS
+    if (!savedSettings) {
+      alert('⚠️ Veuillez configurer EmailJS dans les Paramètres avant d\'envoyer un email.');
+      return;
+    }
+
+    const settings = JSON.parse(savedSettings);
+    
+    if (!settings.emailjsServiceId || !settings.emailjsTemplateId || !settings.emailjsPublicKey) {
+      alert('⚠️ Configuration EmailJS incomplète.\n\nVeuillez aller dans Paramètres et configurer :\n- Service ID\n- Template ID\n- Public Key\n\nConsultez les instructions sur emailjs.com');
+      return;
+    }
+
     setSendingEmail(true);
-    // Simulate sending email
-    setTimeout(() => {
+
+    try {
+      // Préparer le contenu de l'email
+      const totalValue = products.reduce((sum, p) => sum + (p.stockCurrent * p.price), 0);
+      const lowStockProducts = products.filter(p => p.stockCurrent <= p.stockMin);
+      const today = new Date().toISOString().split('T')[0];
+      const todayMovements = movements.filter(m => m.date === today);
+
+      const message = `
+Bonjour ${settings.directorName},
+
+Voici le rapport quotidien du stock de ${settings.companyName} en date du ${new Date().toLocaleDateString('fr-FR')}.
+
+📊 RÉSUMÉ DU JOUR :
+• Nombre total de produits : ${products.length}
+• Stock total (unités) : ${products.reduce((s, p) => s + p.stockCurrent, 0)}
+• Valeur totale du stock : ${totalValue.toLocaleString('fr-FR')} FCFA
+• Mouvements aujourd'hui : ${todayMovements.length}
+• Entrées : ${todayMovements.filter(m => m.type === 'entree').reduce((s, m) => s + m.quantity, 0)}
+• Sorties : ${todayMovements.filter(m => m.type === 'sortie').reduce((s, m) => s + m.quantity, 0)}
+
+${lowStockProducts.length > 0 ? `⚠️ ALERTES STOCK BAS (${lowStockProducts.length} produit(s)) :
+${lowStockProducts.map(p => `• ${p.name} : ${p.stockCurrent} (min: ${p.stockMin})`).join('\n')}
+` : ''}
+
+📎 Le fichier Excel détaillé est en pièce jointe.
+
+Cordialement,
+Système GestStock - ${settings.companyName}
+      `;
+
+      // Envoyer l'email via EmailJS
+      await emailjs.send(
+        settings.emailjsServiceId,
+        settings.emailjsTemplateId,
+        {
+          to_email: settings.directorEmail,
+          subject: `Rapport Stock Quotidien - ${settings.companyName} - ${new Date().toLocaleDateString('fr-FR')}`,
+          message: message,
+        },
+        settings.emailjsPublicKey
+      );
+
       setSendingEmail(false);
       setEmailSent(true);
       setLastSentDate(new Date().toLocaleString('fr-FR'));
-      // Also download the file
+      
+      // Télécharger le fichier Excel
       exportToExcel();
+      
       setTimeout(() => setEmailSent(false), 5000);
-    }, 2000);
+    } catch (error) {
+      console.error('Erreur envoi email:', error);
+      setSendingEmail(false);
+      alert('❌ Erreur lors de l\'envoi de l\'email.\n\nVérifiez :\n1. Votre configuration EmailJS dans les Paramètres\n2. Votre connexion internet\n3. Les identifiants EmailJS (Service ID, Template ID, Public Key)');
+    }
   };
 
   const totalValue = products.reduce((sum, p) => sum + (p.stockCurrent * p.price), 0);
   const lowStockProducts = products.filter(p => p.stockCurrent <= p.stockMin);
   const today = new Date().toISOString().split('T')[0];
   const todayMovements = movements.filter(m => m.date === today);
+
+  // Vérifier si EmailJS est configuré
+  const emailjsConfigured = savedSettings && (() => {
+    const s = JSON.parse(savedSettings);
+    return s.emailjsServiceId && s.emailjsTemplateId && s.emailjsPublicKey;
+  })();
 
   return (
     <div className="space-y-6">
@@ -112,6 +178,34 @@ export default function ReportsPage({ products, movements }: ReportsPageProps) {
           Configurer l'email
         </button>
       </div>
+
+      {/* Alerte si EmailJS non configuré */}
+      {!emailjsConfigured && (
+        <div className="bg-red-50 border-2 border-red-300 rounded-xl p-5">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-bold text-red-800 mb-2">⚠️ EmailJS non configuré</h3>
+              <p className="text-sm text-red-700 mb-3">
+                Pour envoyer des rapports par email, vous devez configurer EmailJS dans les paramètres.
+              </p>
+              <div className="bg-white rounded-lg p-4 border border-red-200 mb-3">
+                <p className="text-sm font-medium text-gray-800 mb-2">📋 Étapes de configuration :</p>
+                <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+                  <li>Allez sur <a href="https://www.emailjs.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-medium">emailjs.com</a> et créez un compte gratuit</li>
+                  <li>Ajoutez un <strong>Service Email</strong> (Gmail, Outlook, etc.)</li>
+                  <li>Créez un <strong>Template</strong> avec ces variables : <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">to_email</code>, <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">subject</code>, <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">message</code></li>
+                  <li>Copiez vos identifiants (Service ID, Template ID, Public Key)</li>
+                  <li>Allez dans <strong>Paramètres</strong> (menu ⚙️) et collez-les</li>
+                </ol>
+              </div>
+              <p className="text-xs text-red-600">
+                💡 EmailJS offre 200 emails gratuits par mois
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Email Config Info */}
       {showEmailConfig && (
